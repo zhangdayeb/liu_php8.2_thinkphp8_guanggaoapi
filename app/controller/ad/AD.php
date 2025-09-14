@@ -30,15 +30,21 @@ class Ad extends BaseController
                 return $this->success([], '缺少必需参数type_id');
             }
             
-            // 查询该分类下的所有广告内容
+            // 获取当前时间
+            $currentTime = date('Y-m-d H:i:s');
+            
+            // 查询该分类下的所有未过期广告内容
             $adList = Db::table('ntp_guanggao_content')
                 ->where('type_id', $typeId)
+                ->where('expired_time', '>', $currentTime)  // 过滤过期广告
+                ->order('id', 'desc')  // 按ID倒序，最新的在前
                 ->select();
             
             // 记录查询结果
             Log::info('get_ad_list - 查询成功', [
                 'type_id' => $typeId,
                 'count' => count($adList),
+                'current_time' => $currentTime,
                 'time' => date('Y-m-d H:i:s')
             ]);
             
